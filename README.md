@@ -178,7 +178,84 @@ Or create your own account during registration.
 
 ---
 
-## 📞 Support
+## � Deployment on Netlify
+
+### Environment Variables Required
+
+The frontend needs these environment variables to connect to your backend and AI engine:
+
+```
+VITE_BACKEND_URL=https://your-backend-url.herokuapp.com
+VITE_AI_ENGINE_URL=https://your-ai-engine-url.herokuapp.com
+```
+
+### Steps to Deploy on Netlify
+
+1. **Push to GitHub** (already done ✓)
+   - Repository: https://github.com/agusto027/Fitverse
+
+2. **Set Up Netlify**
+   - Go to https://app.netlify.com
+   - Click "New site from Git"
+   - Select GitHub and authorize
+   - Choose the `Fitverse` repository
+
+3. **Configure Build Settings**
+   - **Build command**: `npm run build`
+   - **Publish directory**: `dist`
+
+4. **Set Environment Variables in Netlify**
+   - Go to Site settings → Build & deploy → Environment
+   - Click "Edit variables"
+   - Add the following:
+     - Key: `VITE_BACKEND_URL` | Value: `https://your-backend-deployed-url`
+     - Key: `VITE_AI_ENGINE_URL` | Value: `https://your-ai-engine-deployed-url`
+
+5. **Deploy**
+   - Netlify will automatically deploy when you push to GitHub
+   - Or manually trigger deployment from Netlify dashboard
+
+### Deploying Backend (Node.js)
+
+Recommended platforms: Heroku, Railway, or AWS
+
+**Environment variables needed:**
+```
+PORT=3001
+MONGODB_URI=your-mongodb-connection-string
+JWT_SECRET=your-secret-key
+```
+
+### Deploying AI Engine (Python/FastAPI)
+
+Recommended platforms: Heroku, Railway, Google Cloud Run, or AWS
+
+**Requirements:**
+- Python 3.13+
+- All packages from `requirements.txt`
+
+---
+
+## 📌 Local Development Setup
+
+1. **Create `.env.local` file:**
+   ```
+   VITE_BACKEND_URL=http://localhost:3001
+   VITE_AI_ENGINE_URL=http://localhost:8000
+   ```
+
+2. **Install dependencies:**
+   ```
+   npm install
+   cd backend && npm install
+   ```
+
+3. **Run all services:**
+   - Frontend: `npm run dev` (port 5174)
+   - Backend: `node backend/server.js` (port 3001)
+   - AI Engine: `python -m uvicorn ai-engine/main:app --host 0.0.0.0 --port 8000`
+
+---
 
 For issues or inquiries:
 - Click "Contact Us" in the sidebar

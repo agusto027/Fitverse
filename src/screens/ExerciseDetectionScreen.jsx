@@ -25,7 +25,7 @@ const ExerciseDetectionScreen = () => {
 
   // Initialize WebSocket connected to FastAPI AI Engine
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8000/ws/pose');
+    const ws = new WebSocket(`${import.meta.env.VITE_AI_ENGINE_URL.replace('http', 'ws')}/ws/pose`);
     
     ws.onopen = () => setSocketConnected(true);
     ws.onclose = () => setSocketConnected(false);

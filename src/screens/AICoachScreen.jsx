@@ -37,7 +37,7 @@ const AICoachScreen = () => {
     setIsTyping(true);
 
     try {
-      const res = await fetch('http://localhost:8000/api/coach/chat', {
+      const res = await fetch(`${import.meta.env.VITE_AI_ENGINE_URL}/api/coach/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

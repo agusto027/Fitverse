@@ -23,7 +23,7 @@ const DietPlannerScreen = () => {
   const fetchDietPlan = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/diet/recommend', {
+      const res = await fetch(`${import.meta.env.VITE_AI_ENGINE_URL}/api/diet/recommend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ goal: goal, gender: 'Male' }) // In a real app, gender comes from User profile
