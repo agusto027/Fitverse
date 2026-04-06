@@ -1,0 +1,246 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { IoCamera, IoCameraOutline } from 'react-icons/io5';
+import Card from '../components/Card';
+import Button from '../components/Button';
+import styles from './ExerciseDetection.module.css';
+
+const ExerciseDetectionScreen = () => {
+  const [activeExercise, setActiveExercise] = useState('squat');
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [repCount, setRepCount] = useState(0);
+  const [feedbackMsg, setFeedbackMsg] = useState('Tracking...');
+  const [socketConnected, setSocketConnected] = useState(false);
+
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const wsRef = useRef(null);
+  const cameraRef = useRef(null);
+  const poseRef = useRef(null);
+
+  const exercises = [
+    { id: 'squat', name: 'Squat', desc: 'Lower body strength exercise' },
+    { id: 'pushup', name: 'Push-up', desc: 'Upper body and core exercise' },
+    { id: 'plank', name: 'Plank', desc: 'Core stability exercise' }
+  ];
+
+  // Initialize WebSocket connected to FastAPI AI Engine
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:8000/ws/pose');
+    
+    ws.onopen = () => setSocketConnected(true);
+    ws.onclose = () => setSocketConnected(false);
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.rep_count !== undefined) {
+          setRepCount(data.rep_count);
+        }
+        if (data.message) {
+          setFeedbackMsg(data.message);
+        }
+      } catch (e) {
+        console.error("WS Parse Error", e);
+      }
+    };
+    
+    wsRef.current = ws;
+
+    return () => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ command: 'reset' }));
+      setRepCount(0);
+      setFeedbackMsg('Exercise switched. Ready.');
+    }
+  }, [activeExercise]);
+
+  useEffect(() => {
+    if (!isCameraActive) {
+      if (cameraRef.current) {
+        cameraRef.current.stop();
+      }
+      return;
+    }
+
+    const videoElement = videoRef.current;
+    const canvasElement = canvasRef.current;
+    const canvasCtx = canvasElement.getContext('2d');
+
+    // Make sure globals are loaded from index.html CDN
+    if (!window.Pose || !window.Camera) {
+      alert("MediaPipe scripts not loaded yet. Please refresh the page.");
+      setIsCameraActive(false);
+      return;
+    }
+
+    // Initialize Pose
+    const pose = new window.Pose({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+      }
+    });
+
+    pose.setOptions({
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      smoothSegmentation: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    pose.onResults((results) => {
+      if (!canvasElement || !canvasCtx) return;
+
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      
+      // Draw video frame to canvas
+      canvasCtx.drawImage(
+        results.image, 0, 0, canvasElement.width, canvasElement.height
+      );
+
+      // Draw skeleton
+      if (results.poseLandmarks && window.drawConnectors && window.drawLandmarks) {
+        window.drawConnectors(canvasCtx, results.poseLandmarks, window.POSE_CONNECTIONS,
+                       {color: '#00FF00', lineWidth: 4});
+        window.drawLandmarks(canvasCtx, results.poseLandmarks,
+                      {color: '#FF0000', lineWidth: 2});
+
+        // Send payload to Python AI engine via WS
+        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            const payload = {
+              landmarks: results.poseLandmarks,
+              exercise: activeExercise
+            };
+            wsRef.current.send(JSON.stringify(payload));
+        }
+      }
+      canvasCtx.restore();
+    });
+
+    poseRef.current = pose;
+
+    // Initialize Camera
+    const camera = new window.Camera(videoElement, {
+      onFrame: async () => {
+        if (poseRef.current) {
+          await poseRef.current.send({image: videoElement});
+        }
+      },
+      width: 640,
+      height: 480
+    });
+
+    camera.start();
+    cameraRef.current = camera;
+
+    return () => {
+      if (cameraRef.current) {
+        cameraRef.current.stop();
+      }
+      if (poseRef.current) {
+        poseRef.current.close();
+      }
+    };
+  }, [isCameraActive]);
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div className={styles.iconBadge}>
+          <IoCamera size={24} />
+        </div>
+        <div>
+          <h1 className={styles.title}>Exercise Detection</h1>
+          <p className={styles.subtitle}>AI-powered posture analysis {socketConnected ? '🟢' : '🔴 WS'}</p>
+        </div>
+      </div>
+
+      <Card className={styles.cameraCard}>
+        <div className={`${styles.previewArea} ${isCameraActive ? styles.active : ''}`} style={{ position: 'relative', overflow: 'hidden' }}>
+          {!isCameraActive ? (
+            <>
+              <IoCameraOutline size={64} className={styles.previewIcon} />
+              <p className={styles.previewText}>Click "Start Camera" to begin exercise detection</p>
+              <p className={styles.previewSubtext}>Please allow camera permissions if prompted</p>
+            </>
+          ) : (
+            <>
+              <video 
+                ref={videoRef} 
+                style={{ display: 'none' }} 
+                playsInline
+              />
+              <canvas 
+                ref={canvasRef} 
+                width={640} 
+                height={480} 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div style={{ position: 'absolute', top: '20px', left: '20px', background: 'rgba(0,0,0,0.7)', padding: '10px 20px', borderRadius: '12px' }}>
+                 <p style={{ color: '#3b82f6', margin: 0, fontWeight: 'bold' }}>{feedbackMsg}</p>
+                 <div className={styles.repCounter} style={{ position: 'relative', bottom: '0', left: '0', marginTop: '10px' }}>
+                   <span className={styles.repCount}>{repCount}</span>
+                   <span className={styles.repLabel}>reps</span>
+                 </div>
+              </div>
+            </>
+          )}
+        </div>
+        <Button 
+          className={styles.startBtn} 
+          onClick={() => setIsCameraActive(!isCameraActive)}
+          variant={isCameraActive ? 'outline' : 'primary'}
+        >
+          {isCameraActive ? 'Stop Camera' : '▶ Start Camera'}
+        </Button>
+      </Card>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Choose an exercise to track</h2>
+        <div className={styles.grid}>
+          {exercises.map(ex => (
+            <div 
+              key={ex.id}
+              className={`${styles.exerciseCard} ${activeExercise === ex.id ? styles.activeCard : ''}`}
+              onClick={() => setActiveExercise(ex.id)}
+            >
+              <h3>{ex.name}</h3>
+              <p>{ex.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>How It Works</h2>
+        <ol className={styles.instructionList}>
+          <li>Select an exercise from the list above</li>
+          <li>Click "Start Camera" to begin</li>
+          <li>Position yourself so your full body is visible</li>
+          <li>Follow the real-time feedback on screen</li>
+          <li>The AI will track your reps and form</li>
+        </ol>
+
+        <Card className={styles.tipsCard}>
+          <h3 className={styles.tipsTitle}>Tips for Best Results:</h3>
+          <ul className={styles.tipsList}>
+            <li><span className={styles.dot} style={{ background: 'var(--color-primary)' }}/>Ensure good lighting for better detection</li>
+            <li><span className={styles.dot} style={{ background: 'var(--color-blue)' }}/>Wear fitted clothing for accuracy</li>
+            <li><span className={styles.dot} style={{ background: 'var(--color-orange)' }}/>Keep your full body in frame</li>
+          </ul>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default ExerciseDetectionScreen;

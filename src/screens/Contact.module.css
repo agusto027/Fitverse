@@ -1,0 +1,263 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.backBtn {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.backBtn:hover {
+  background-color: var(--color-bg-card);
+}
+
+.iconBadge {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.formCard {
+  padding: 32px;
+}
+
+.formTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.errorMessage {
+  background-color: rgba(255, 77, 77, 0.1);
+  border: 1px solid var(--color-red);
+  color: var(--color-red);
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.successMessage {
+  text-align: center;
+  padding: 24px 0;
+}
+
+.successMessage h2 {
+  color: var(--color-primary);
+  margin-bottom: 12px;
+  font-size: 24px;
+}
+
+.successMessage p {
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.emailInfo {
+  font-size: 13px;
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+.emailBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.emailBox code {
+  font-family: 'Courier New', monospace;
+  color: var(--color-primary);
+  font-weight: 600;
+  flex: 1;
+  word-break: break-all;
+}
+
+.copyBtn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.copyBtn:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.messageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.textarea {
+  width: 100%;
+  background-color: var(--color-bg-card);
+  border: 1px solid transparent;
+  padding: 12px 14px;
+  border-radius: var(--radius-input);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-family: var(--font-family);
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s ease, background-color 0.2s;
+}
+
+.textarea:focus {
+  border-color: var(--color-primary);
+  background-color: var(--color-bg-card-hover);
+}
+
+.textarea::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.infoCard {
+  padding: 24px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.infoTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.infoItem {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.infoItem:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.infoLabel {
+  display: block;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+}
+
+.infoLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.infoLink:hover {
+  text-decoration: underline;
+}
+
+.infoItem p {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .container {
+    gap: 16px;
+  }
+
+  .header {
+    gap: 12px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .infoCard {
+    position: static;
+  }
+
+  .formCard {
+    padding: 24px;
+  }
+
+  .backBtn {
+    display: flex;
+  }
+}

@@ -1,0 +1,198 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 32px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.iconBadge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: var(--color-purple);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.goalSelection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.goalCard {
+  padding: 20px;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  border: 2px solid transparent;
+}
+
+.goalCard h3 {
+  font-size: 16px;
+}
+
+.activeFatLoss {
+  border-color: var(--color-orange);
+  background-color: rgba(255, 123, 0, 0.05);
+}
+
+.activeFatLoss h3 {
+  color: var(--color-orange);
+}
+
+.activeMuscleGain {
+  border-color: var(--color-purple);
+  background-color: rgba(157, 78, 221, 0.05);
+}
+
+.activeMuscleGain h3 {
+  color: var(--color-purple);
+}
+
+.planHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.planTitle {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.planSubtitle {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.resetBtn {
+  width: auto;
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.dayCard {
+  flex-direction: column;
+  padding: 24px;
+}
+
+.dayHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.dayName {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--color-text-primary);
+}
+
+.focusPill {
+  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.05);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  align-self: flex-start;
+}
+
+.exerciseList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.exerciseList li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.checkIcon {
+  color: var(--color-bg-card-hover);
+  border-radius: 50%;
+  background: var(--color-bg-card-hover);
+}
+
+.checkActive {
+  color: var(--color-primary);
+  background: transparent;
+}
+
+.completedCard {
+  border: 1px solid var(--color-primary);
+  background-color: rgba(76, 175, 80, 0.05); /* very light green tint */
+  transform: scale(0.98);
+}
+
+.progressSection {
+  margin-top: 16px;
+}
+
+.progressLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+.progressBarBg {
+  height: 6px;
+  background-color: var(--color-bg-card);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: var(--color-purple);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}

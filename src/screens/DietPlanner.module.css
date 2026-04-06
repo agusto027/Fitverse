@@ -1,0 +1,306 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 32px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.iconBadge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: var(--color-orange);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.regenBtn {
+  margin-top: -8px;
+}
+
+.goalSelection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.goalCard {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border: 1px solid transparent;
+}
+
+.goalContent {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.goalIconBox {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.greenBg { background-color: var(--color-primary); }
+.blueBg { background-color: var(--color-blue); }
+
+.goalText h3 {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.goalText p {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.selectedBadge {
+  background-color: var(--color-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.selectedBadgeBlue {
+  background-color: var(--color-blue);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.activeFatLoss {
+  border-color: var(--color-primary);
+}
+
+.activeMuscleGain {
+  border-color: var(--color-blue);
+}
+
+.statsSection {
+  margin-top: 8px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.sectionSubtitle {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.macroStat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--color-bg-card);
+  padding: 16px;
+  border-radius: var(--radius-card);
+}
+
+.macroInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.macroValue {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.macroLabel {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.daysScroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  padding: 6px;
+  background-color: var(--color-bg-card);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.daysScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.dayTab {
+  flex: 1;
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.activeTab {
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-primary);
+  background-color: rgba(76, 175, 80, 0.05);
+}
+
+.mealsList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .mealsList {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mealCard {
+  padding: 24px;
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mealHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mealIconCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.mealType {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.mealName {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.mealDesc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.macroPills {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.macroPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--color-bg-main);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.snackItemBox {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  background-color: var(--color-bg-main);
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.snackRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.snackTitle {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.snackCal {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.snackDesc {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.totalsCard {
+  background-color: rgba(76, 175, 80, 0.1);
+  padding: 16px;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.totalsCard h3 {
+  color: var(--color-primary);
+  font-size: 15px;
+}
+
+.totalsCard p {
+  font-size: 14px;
+  font-weight: 500;
+}

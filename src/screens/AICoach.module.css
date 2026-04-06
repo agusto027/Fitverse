@@ -1,0 +1,205 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 48px); /* Full height minus padding */
+  max-height: 900px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    height: calc(100vh - 100px); /* Adjust for mobile header spacing */
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.iconBadge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: var(--color-blue);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.chatContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.chatHeader {
+  padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.chatTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.chatSubtitle {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.aiBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.messageArea {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.messageWrapper {
+  display: flex;
+  gap: 12px;
+  max-width: 85%;
+}
+
+.wrapperUser {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.botAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background-color: var(--color-blue);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.messageBubble {
+  padding: 16px;
+  border-radius: 16px;
+  position: relative;
+}
+
+.bubbleBot {
+  background-color: #162024; /* deep blue-grey tint */
+  border-top-left-radius: 4px;
+}
+
+.bubbleUser {
+  background-color: var(--color-primary);
+  border-top-right-radius: 4px;
+}
+
+.messageBubble p {
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.time {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  display: block;
+}
+
+.inputSection {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.quickPrompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.promptChip {
+  background-color: var(--color-bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-primary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.promptChip:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.inputWrapper {
+  display: flex;
+  gap: 12px;
+  background-color: var(--color-bg-card);
+  padding: 8px;
+  border-radius: var(--radius-card);
+  align-items: center;
+}
+
+.inputField {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  color: var(--color-text-primary);
+  font-size: 15px;
+}
+
+.inputField::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.sendBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--color-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.2s;
+}
+
+.sendBtn:hover {
+  background-color: var(--color-primary-dark);
+}
