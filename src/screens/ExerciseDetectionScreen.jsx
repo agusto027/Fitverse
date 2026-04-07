@@ -3,6 +3,7 @@ import { IoCamera, IoCameraOutline } from 'react-icons/io5';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import styles from './ExerciseDetection.module.css';
+import { calculateBMI } from '../utils/bmiCalculator';
 
 const ExerciseDetectionScreen = () => {
   const [activeExercise, setActiveExercise] = useState('squat');
@@ -10,6 +11,8 @@ const ExerciseDetectionScreen = () => {
   const [repCount, setRepCount] = useState(0);
   const [feedbackMsg, setFeedbackMsg] = useState('Tracking...');
   const [socketConnected, setSocketConnected] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [recommendedExercises, setRecommendedExercises] = useState([]);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -17,11 +20,55 @@ const ExerciseDetectionScreen = () => {
   const cameraRef = useRef(null);
   const poseRef = useRef(null);
 
-  const exercises = [
-    { id: 'squat', name: 'Squat', desc: 'Lower body strength exercise' },
-    { id: 'pushup', name: 'Push-up', desc: 'Upper body and core exercise' },
-    { id: 'plank', name: 'Plank', desc: 'Core stability exercise' }
-  ];
+  const allExercises = {
+    beginner: [
+      { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Beginner' },
+      { id: 'plank', name: 'Plank', desc: 'Core stability exercise', difficulty: 'Beginner' },
+      { id: 'marching', name: 'Marching in Place', desc: 'Cardio warm-up', difficulty: 'Beginner' }
+    ],
+    intermediate: [
+      { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Beginner' },
+      { id: 'pushup', name: 'Push-up', desc: 'Upper body and core', difficulty: 'Intermediate' },
+      { id: 'plank', name: 'Plank', desc: 'Core stability exercise', difficulty: 'Beginner' },
+      { id: 'lunge', name: 'Lunge', desc: 'Lower body and balance', difficulty: 'Intermediate' },
+      { id: 'jumpingjacks', name: 'Jumping Jacks', desc: 'Full body cardio', difficulty: 'Intermediate' }
+    ],
+    advanced: [
+      { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Beginner' },
+      { id: 'pushup', name: 'Push-up', desc: 'Upper body and core', difficulty: 'Intermediate' },
+      { id: 'plank', name: 'Plank', desc: 'Core stability', difficulty: 'Beginner' },
+      { id: 'lunge', name: 'Lunge', desc: 'Lower body and balance', difficulty: 'Intermediate' },
+      { id: 'jumpingjacks', name: 'Jumping Jacks', desc: 'Full body cardio', difficulty: 'Intermediate' },
+      { id: 'burpee', name: 'Burpee', desc: 'Full body HIIT', difficulty: 'Advanced' },
+      { id: 'mountainclimber', name: 'Mountain Climber', desc: 'Core and cardio', difficulty: 'Advanced' }
+    ]
+  };
+
+  // Load profile and determine difficulty level
+  useEffect(() => {
+    const profileData = localStorage.getItem('fitverse_profile');
+    if (profileData) {
+      const data = JSON.parse(profileData);
+      setProfile(data);
+      
+      // Determine difficulty based on BMI and age
+      const bmi = calculateBMI(data.weight, data.height);
+      let difficulty = 'beginner';
+      
+      if (bmi < 25 && data.age < 40) {
+        difficulty = 'advanced';
+      } else if (bmi < 30 && data.age < 50) {
+        difficulty = 'intermediate';
+      } else {
+        difficulty = 'beginner';
+      }
+      
+      setRecommendedExercises(allExercises[difficulty]);
+      setActiveExercise(allExercises[difficulty][0].id);
+    } else {
+      setRecommendedExercises(allExercises.intermediate);
+    }
+  }, []);
 
   // Initialize WebSocket connected to FastAPI AI Engine
   useEffect(() => {
@@ -206,8 +253,11 @@ const ExerciseDetectionScreen = () => {
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Choose an exercise to track</h2>
+        <p className={styles.sectionSubtitle}>
+          {profile ? `Personalized for ${profile.age}y, BMI ${calculateBMI(profile.weight, profile.height)}` : 'Select from available exercises'}
+        </p>
         <div className={styles.grid}>
-          {exercises.map(ex => (
+          {recommendedExercises.map(ex => (
             <div 
               key={ex.id}
               className={`${styles.exerciseCard} ${activeExercise === ex.id ? styles.activeCard : ''}`}
@@ -215,6 +265,11 @@ const ExerciseDetectionScreen = () => {
             >
               <h3>{ex.name}</h3>
               <p>{ex.desc}</p>
+              <span className={styles.difficultyBadge} style={{ 
+                background: ex.difficulty === 'Beginner' ? '#10b981' : ex.difficulty === 'Intermediate' ? '#f97316' : '#ef4444' 
+              }}>
+                {ex.difficulty}
+              </span>
             </div>
           ))}
         </div>

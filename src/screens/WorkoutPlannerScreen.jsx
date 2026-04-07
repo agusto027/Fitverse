@@ -1,15 +1,35 @@
-import React, { useState } from 'react';
-import { IoBarbell, IoFlameOutline, IoCheckmarkCircle } from 'react-icons/io5';
+import React, { useState, useEffect } from 'react';
+import { IoBarbell, IoFlameOutline, IoCheckmarkCircle, IoScaleOutline } from 'react-icons/io5';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import styles from './WorkoutPlanner.module.css';
+import { calculateBMI, getBMICategory, getRecommendations } from '../utils/bmiCalculator';
 
 const WorkoutPlannerScreen = () => {
   const [goal, setGoal] = useState('fat-loss');
+  const [profile, setProfile] = useState(null);
+  const [bmi, setBmi] = useState(null);
+  const [recommendation, setRecommendation] = useState(null);
   const [progress, setProgress] = useState({
     'fat-loss': [false, false, false, false, false, false, false],
-    'muscle-gain': [false, false, false, false, false, false, false]
+    'muscle-gain': [false, false, false, false, false, false, false],
+    'balance': [false, false, false, false, false, false, false]
   });
+
+  // Load user profile on mount
+  useEffect(() => {
+    const profileData = localStorage.getItem('fitverse_profile');
+    if (profileData) {
+      const data = JSON.parse(profileData);
+      setProfile(data);
+      const calculatedBMI = calculateBMI(data.weight, data.height);
+      setBmi(calculatedBMI);
+      const rec = getRecommendations(calculatedBMI, data.fitnessGoal);
+      setRecommendation(rec);
+      // Pre-select workout goal based on BMI recommendations
+      setGoal(rec.diet);
+    }
+  }, []);
 
   const plans = {
     'fat-loss': {
@@ -36,6 +56,19 @@ const WorkoutPlannerScreen = () => {
         { day: 'Friday', title: 'Upper Body', items: ['Incline Bench', 'Weighted Pull-ups', 'Lateral Raises'], completed: false },
         { day: 'Saturday', title: 'Rest', items: ['Active Recovery / Yoga'], completed: false },
         { day: 'Sunday', title: 'Core', items: ['Planks', 'Russian Twists', 'Ab Rollouts'], completed: false }
+      ]
+    },
+    'balance': {
+      title: 'Balanced Fitness Program',
+      subtitle: 'Mix of strength training and cardio for overall fitness',
+      days: [
+        { day: 'Monday', title: 'Strength + Cardio', items: ['Squats x 12', 'Push-ups x 12', 'Jogging 20 min', 'Plank 30 sec'], completed: false },
+        { day: 'Tuesday', title: 'Cardio Focus', items: ['Running / Cycling 30 min', 'Jumping Jacks x 20', 'High Knees x 20'], completed: false },
+        { day: 'Wednesday', title: 'Rest / Yoga', items: ['Yoga 30 min', 'Stretching', 'Meditation'], completed: false },
+        { day: 'Thursday', title: 'Upper Body + Core', items: ['Bench Press', 'Pull-ups x 8', 'Planks 45 sec', 'Ab Crunches x 20'], completed: false },
+        { day: 'Friday', title: 'Full Body', items: ['Deadlifts', 'Push-ups x 15', 'Lunges x 12 each', 'Cardio 15 min'], completed: false },
+        { day: 'Saturday', title: 'Active Recovery', items: ['Light hiking', 'Swimming (light)', 'Stretching 20 min'], completed: false },
+        { day: 'Sunday', title: 'Rest Day', items: ['Recovery', 'Meal prep', 'Light walking'], completed: false }
       ]
     }
   };
@@ -71,6 +104,36 @@ const WorkoutPlannerScreen = () => {
         </div>
       </div>
 
+      {profile && bmi && recommendation && (
+        <Card className={styles.profileInfoCard}>
+          <div className={styles.profileGrid}>
+            <div className={styles.profileItem}>
+              <span className={styles.label}>BMI</span>
+              <span className={styles.value} style={{ color: `${recommendation.diet === 'muscle-gain' ? '#3b82f6' : recommendation.diet === 'fat-loss' ? '#f97316' : '#10b981'}` }}>
+                {bmi}
+              </span>
+            </div>
+            <div className={styles.profileItem}>
+              <span className={styles.label}>Age</span>
+              <span className={styles.value}>{profile.age}</span>
+            </div>
+            <div className={styles.profileItem}>
+              <span className={styles.label}>Height</span>
+              <span className={styles.value}>{profile.height}cm</span>
+            </div>
+            <div className={styles.profileItem}>
+              <span className={styles.label}>Weight</span>
+              <span className={styles.value}>{profile.weight}kg</span>
+            </div>
+            <div className={styles.profileItem}>
+              <span className={styles.label}>Intensity</span>
+              <span className={styles.value} style={{ textTransform: 'capitalize', fontSize: '14px' }}>{recommendation.workoutIntensity}</span>
+            </div>
+          </div>
+          <p className={styles.profileAdvice}>{recommendation.advice}</p>
+        </Card>
+      )}
+
       <div className={styles.goalSelection}>
         <Card 
           className={`${styles.goalCard} ${goal === 'fat-loss' ? styles.activeFatLoss : ''}`}
@@ -85,6 +148,13 @@ const WorkoutPlannerScreen = () => {
         >
           <IoBarbell size={28} className={styles.goalIcon} color={goal === 'muscle-gain' ? 'var(--color-purple)' : 'var(--color-text-secondary)'} />
           <h3>Muscle Gain</h3>
+        </Card>
+        <Card 
+          className={`${styles.goalCard} ${goal === 'balance' ? styles.activeBalance : ''}`}
+          onClick={() => setGoal('balance')}
+        >
+          <IoScaleOutline size={28} className={styles.goalIcon} color={goal === 'balance' ? '#10b981' : 'var(--color-text-secondary)'} />
+          <h3>Maintain</h3>
         </Card>
       </div>
 

@@ -12,7 +12,8 @@ import {
   IoLogOutOutline,
   IoMenuOutline,
   IoCloseOutline,
-  IoMailOutline
+  IoMailOutline,
+  IoPersonOutline
 } from 'react-icons/io5';
 import Header from './Header';
 import styles from './Sidebar.module.css';
@@ -60,12 +61,18 @@ const Sidebar = ({ isMobile, isOpen, setIsOpen }) => {
     handleLinkClick();
   };
 
+  const handleProfileClick = () => {
+    navigate('/profile');
+    handleLinkClick();
+  };
+
   const handleLinkClick = () => {
     if (isMobile) setIsOpen(false);
   };
 
   const navLinks = [
     { to: '/dashboard', icon: IoGridOutline, label: 'Dashboard' },
+    { to: '/profile', icon: IoPersonOutline, label: 'My Profile' },
     { to: '/exercise', icon: IoCameraOutline, label: 'Exercise Detection' },
     { to: '/workout', icon: IoBarbellOutline, label: 'Workout Planner' },
     { to: '/diet', icon: IoRestaurantOutline, label: 'Diet Planner' },

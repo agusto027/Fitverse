@@ -2,21 +2,29 @@
 
 A comprehensive fitness application with AI-powered features for personalized workout tracking, exercise form detection, meal planning, and a 24/7 virtual fitness coach.
 
+> **📖 For Detailed Technical Documentation:** See [README_DETAILED.md](README_DETAILED.md) for comprehensive tech stack, architecture, algorithms, and functions explanation.
+
 ---
 
-## 🚀 How to Use This Website
+## 🚀 Quick Start
 
 ### Getting Started
 
 1. **Open the Website**
-   - Navigate to `http://localhost:5174` in your web browser
+   - Navigate to `http://localhost:5179` in your web browser (or the displayed port)
 
 2. **Create an Account or Sign In**
    - Click "Sign up" to create a new account with your name, email, and password
    - Or sign in with existing credentials
    - Minimum password length: 6 characters
 
-3. **Dashboard**
+3. **Complete Your Profile**
+   - Go to "My Profile" in the sidebar
+   - Enter your height (cm), weight (kg), and age
+   - Select your fitness goal (Build Muscle, Lose Weight, or Maintain)
+   - This personalizes all recommendations!
+
+4. **Dashboard**
    - View your fitness statistics (workouts completed, last workout)
    - Access quick action cards to navigate to different features
    - Read daily fitness reminders and tips
@@ -25,37 +33,46 @@ A comprehensive fitness application with AI-powered features for personalized wo
 
 #### 📹 Exercise Detection
 - Start your camera to enable AI-powered pose detection
-- Select from exercises: Squat, Push-up, or Plank
+- 7 exercises available (difficulty-based on your profile)
 - Real-time feedback on form and technique
-- Automatic rep counting as you perform exercises
+- Automatic rep counting using MediaPipe Pose landmarks
+- **Advanced exercises**: Squat, Push-up, Lunge, Burpee, Mountain Climber
+- **Beginner exercises**: Plank, Marching in Place, Jumping Jacks
 - Supported browsers: Chrome, Firefox, Edge (with camera permissions)
 
 #### 💪 Workout Planner
 - Create and manage personalized workout routines
-- Weekly workout scheduling
-- Track completed workouts
-- View detailed exercise information and instructions
+- **3 difficulty levels**: Beginner, Intermediate, Advanced (based on your BMI & age)
+- **3 workout types**: Fat Loss (HIIT), Muscle Gain (Strength), Maintain (Balanced)
+- Weekly workout scheduling with progress tracking
+- Track completed workouts and view detailed exercise instructions
 
 #### 🍽️ Diet Planner
-- Get personalized meal plans based on your goals
-- Choose between Fat Loss or Muscle Gain plans
+- Get personalized meal plans based on your profile data (BMI, age, goals)
+- **3 diet goals**: Fat Loss (deficit), Muscle Gain (surplus), Maintain (balanced)
 - Daily meal breakdown: Breakfast, Lunch, Dinner, Snacks
-- Macro tracking (Calories, Protein, Carbs, Fat)
-- 7-day meal recommendations
+- Macro tracking: Calories, Protein, Carbs, Fat, Sodium
+- 7-day meal recommendations sourced from AI analysis
 
 #### 🤖 AI Coach
-- Chat with your personal fitness AI assistant
-- Get answers to fitness questions
-- Form correction guidance
-- Motivation and accountability support
-- Available 24/7
+- Chat with your personal fitness AI assistant (24/7 availability)
+- Uses NLP (Natural Language Processing) to understand your questions
+- Get answers to: nutrition, form, motivation, workout planning
+- Powered by TF-IDF similarity matching with fitness knowledge base
+- Available topics: weight loss, muscle building, sleep, motivation, form correction
+
+#### 👤 My Profile
+- Store and update your fitness profile
+- Height, Weight, Age, and Fitness Goal
+- Real-time BMI calculation with color-coded categories
+- Personalizes all recommendations (Diet, Workout, Exercise Detection)
 
 #### ⚙️ Settings
 - **Theme Settings**: Toggle between Dark, Light, or System theme
 - **Account Menu**: View profile and sign out
-- **Contact Us**: Email for inquiries :
-- samrajnee05@gmail.com
-- sanjanav0610@gmail.com
+- **Contact Us**: Email for inquiries:
+  - samrajnee05@gmail.com
+  - sanjanav0610@gmail.com
 
 ### Navigation
 - Use the sidebar to navigate between features
@@ -64,40 +81,83 @@ A comprehensive fitness application with AI-powered features for personalized wo
 
 ---
 
-## 🛠️ Tech Stack
+## 🏗️ HOW IT WORKS - Technology Overview
 
-### Frontend
-- **React** (18.3.1) - UI library for building interactive components
-- **Vite** (5.4.1) - Fast build tool and development server
-- **React Router DOM** (6.22.3) - Client-side routing and navigation
-- **React Icons** (5.0.1) - Icon library for UI elements
-- **CSS Modules** - Scoped styling for component isolation
-- **MediaPipe Pose** (via CDN) - Real-time pose estimation for exercise detection
+### Frontend (React + Vite)
+Renders interactive UI components with real-time state management
+- **React Hooks**: useState (state), useEffect (side effects), useRef (DOM access)
+- **Routing**: React Router for navigation between screens
+- **Styling**: CSS Modules for scoped, component-specific styles
+- **Icons**: React Icons library for consistent UI elements
+- **Storage**: localStorage for user session persistence
 
-### Backend
-- **Node.js** - JavaScript runtime environment
-- **Express** (5.2.1) - Web server framework
-- **MongoDB Memory Server** (11.0.1) - In-memory MongoDB for development
-- **Mongoose** (9.4.1) - MongoDB object modeling
-- **bcryptjs** (3.0.3) - Password hashing and security
-- **JSON Web Tokens (JWT)** (9.0.3) - Authentication tokens
-- **CORS** (2.8.6) - Cross-origin resource sharing
-- **dotenv** (17.4.1) - Environment variable management
+### Backend (Node.js + Express)
+HTTP server handling authentication and data management
+- **Authentication**: JWT tokens + bcryptjs password hashing
+- **API Routes**: /auth/register, /auth/login
+- **Database**: MongoDB (in-memory for dev, Atlas for production)
+- **Security**: CORS, environment variables, token verification
 
-### AI Engine
-- **FastAPI** (0.135.2) - High-performance Python web framework
-- **Uvicorn** - ASGI server for FastAPI
-- **NumPy** - Numerical computing
-- **Pandas** (9.4.1) - Data manipulation and analysis
-- **scikit-learn** - Machine learning utilities
-- **Python 3.13** - Programming language
+### AI Engine (FastAPI + Python)
+Real-time AI processing for exercise detection and recommendations
+- **Exercise Detection**: MediaPipe Pose + angle calculations for rep counting
+  - Calculates angles between joints using trigonometry (atan2)
+  - Tracks state transitions (up/down/active/idle)
+  - Outputs: rep count, feedback message, form corrections
+- **Diet Recommendation**: Pandas DataFrame filtering based on user profile
+- **AI Coach**: scikit-learn TF-IDF vectorization + cosine similarity for NLP
+- **WebSocket**: Real-time bidirectional communication for live exercise feedback
 
-### Development Tools
-- **ESLint** (9.9.0) - Code quality and linting
-- **Vite React Plugin** (4.3.1) - React optimization for Vite
-- **npm** - Package manager
+### Data Flow Example: Exercise Detection
+```
+User → Start Camera → MediaPipe extracts 33 body landmarks → Send to WebSocket
+→ Backend calculates joint angles → Determines rep stage → Returns feedback
+→ Frontend updates rep count display
+```
 
 ---
+
+## 🛠️ Tech Stack (Quick Overview)
+
+### Frontend
+- **React 18.3.1** - Component-based UI with hooks
+- **Vite 5.4.1** - Lightning-fast dev server & build tool
+- **React Router 6.22.3** - Client-side navigation & routing
+- **React Icons 5.0.1** - 7000+ SVG icons
+- **CSS Modules** - Scoped component styling
+- **MediaPipe Pose (CDN)** - Real-time pose detection ML model
+
+### Backend
+- **Node.js** - JavaScript runtime
+- **Express 5.2.1** - Web server framework
+- **Mongoose 9.4.1** - MongoDB object mapper with validation
+- **bcryptjs 3.0.3** - Secure password hashing
+- **JWT 9.0.3** - Token-based authentication
+- **CORS** - Cross-origin request handling
+
+### AI Engine
+- **FastAPI 0.135.2** - High-performance Python web framework
+- **Uvicorn** - ASGI server for async processing
+- **NumPy** - Mathematical calculations (angle math, trigonometry)
+- **Pandas 2.x** - CSV parsing & data filtering
+- **scikit-learn** - TF-IDF vectorization for NLP
+
+### Database
+- **MongoDB Memory Server** (dev) - In-memory testing
+- **MongoDB Atlas** (production) - Cloud database
+
+### Key Algorithms Used
+| Algorithm | Purpose | Where |
+|-----------|---------|-------|
+| **BMI Calculation** | User fitness level assessment | Frontend (bmiCalculator.js) |
+| **Pose Angle Calculation** | Rep counting & form detection | Backend (atan2 trigonometry) |
+| **TF-IDF + Cosine Similarity** | AI coaching response matching | Backend (coach_engine.py) |
+| **CSV DataFrame Filtering** | Diet recommendation | Backend (diet_recommender.py) |
+| **Password Hashing (bcrypt)** | Secure authentication | Backend (bcryptjs) |
+
+---
+
+> **For deep-dive into functions, architecture, data flows, and algorithms → See [README_DETAILED.md](README_DETAILED.md)**
 
 ## 📋 System Requirements
 

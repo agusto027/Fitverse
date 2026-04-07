@@ -6,17 +6,37 @@ import {
   IoFlame,
   IoFastFood,
   IoLeaf,
-  IoWater
+  IoWater,
+  IoScaleOutline
 } from 'react-icons/io5';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import styles from './DietPlanner.module.css';
+import { calculateBMI, getBMICategory, getRecommendations } from '../utils/bmiCalculator';
 
 const DietPlannerScreen = () => {
   const [goal, setGoal] = useState('fat-loss');
   const [activeTab, setActiveTab] = useState('Mon');
   const [nutritionData, setNutritionData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [bmi, setBmi] = useState(null);
+  const [recommendation, setRecommendation] = useState(null);
+
+  // Load user profile on mount
+  useEffect(() => {
+    const profileData = localStorage.getItem('fitverse_profile');
+    if (profileData) {
+      const data = JSON.parse(profileData);
+      setProfile(data);
+      const calculatedBMI = calculateBMI(data.weight, data.height);
+      setBmi(calculatedBMI);
+      const rec = getRecommendations(calculatedBMI, data.fitnessGoal);
+      setRecommendation(rec);
+      // Pre-select diet goal based on BMI recommendations
+      setGoal(rec.diet);
+    }
+  }, []);
 
   const tabs = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -56,6 +76,36 @@ const DietPlannerScreen = () => {
         </div>
       </div>
 
+      {profile && bmi && recommendation && (
+        <Card className={styles.profileInfoCard}>
+          <div className={styles.profileGrid}>
+            <div className={styles.profileItem}>
+              <span className={styles.label}>BMI</span>
+              <span className={styles.value} style={{ color: `${recommendation.diet === 'muscle-gain' ? '#3b82f6' : recommendation.diet === 'fat-loss' ? '#f97316' : '#10b981'}` }}>
+                {bmi}
+              </span>
+            </div>
+            <div className={styles.profileItem}>
+              <span className={styles.label}>Age</span>
+              <span className={styles.value}>{profile.age}</span>
+            </div>
+            <div className={styles.profileItem}>
+              <span className={styles.label}>Height</span>
+              <span className={styles.value}>{profile.height}cm</span>
+            </div>
+            <div className={styles.profileItem}>
+              <span className={styles.label}>Weight</span>
+              <span className={styles.value}>{profile.weight}kg</span>
+            </div>
+            <div className={styles.profileItem}>
+              <span className={styles.label}>Daily Target</span>
+              <span className={styles.value} style={{ fontSize: '14px' }}>{recommendation.dailyCalories} cal</span>
+            </div>
+          </div>
+          <p className={styles.profileAdvice}>{recommendation.advice}</p>
+        </Card>
+      )}
+
       <Button variant="outline" className={styles.regenBtn} onClick={fetchDietPlan} disabled={loading}>
         {loading ? '↻ Loading...' : '↻ Regenerate Plan'}
       </Button>
@@ -91,6 +141,22 @@ const DietPlannerScreen = () => {
              </div>
           </div>
           {goal === 'muscle-gain' && <span className={styles.selectedBadgeBlue}>Selected</span>}
+        </Card>
+
+        <Card 
+          className={`${styles.goalCard} ${goal === 'balance' ? styles.activeBalance : ''}`}
+          onClick={() => setGoal('balance')}
+        >
+          <div className={styles.goalContent}>
+             <div className={`${styles.goalIconBox} ${styles.greenBg}`}>
+               <IoScaleOutline size={24} color="#fff" />
+             </div>
+             <div className={styles.goalText}>
+               <h3>Maintain</h3>
+               <p>Balanced nutrition and fitness</p>
+             </div>
+          </div>
+          {goal === 'balance' && <span className={styles.selectedBadgeGreen}>Selected</span>}
         </Card>
       </div>
 

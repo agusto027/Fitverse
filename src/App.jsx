@@ -10,6 +10,7 @@ import WorkoutPlannerScreen from './screens/WorkoutPlannerScreen';
 import DietPlannerScreen from './screens/DietPlannerScreen';
 import AICoachScreen from './screens/AICoachScreen';
 import ContactScreen from './screens/ContactScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<DashboardScreen />} />
+          <Route path="/profile" element={<ProfileScreen />} />
           <Route path="/exercise" element={<ExerciseDetectionScreen />} />
           <Route path="/workout" element={<WorkoutPlannerScreen />} />
           <Route path="/diet" element={<DietPlannerScreen />} />

@@ -52,7 +52,7 @@ const ContactScreen = () => {
     setLoading(true);
     try {
       // Copy to clipboard as fallback and show success
-      const mailtoLink = `mailto:samrajnee05@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
+      const mailtoLink = `mailto:samrajnee05@gmail.com,sanjanav0610@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
       
       // Try to open email client
       window.location.href = mailtoLink;
@@ -96,13 +96,25 @@ const ContactScreen = () => {
             <div className={styles.successMessage}>
               <h2>✅ Success!</h2>
               <p>Your email client is opening. Please send the email to complete your message.</p>
-              <p className={styles.emailInfo}>If your email client didn't open, copy this email address:</p>
+              <p className={styles.emailInfo}>If your email client didn't open, copy one of these email addresses:</p>
               <div className={styles.emailBox}>
                 <code>samrajnee05@gmail.com</code>
                 <button 
                   className={styles.copyBtn}
                   onClick={() => {
                     navigator.clipboard.writeText('samrajnee05@gmail.com');
+                    alert('Email copied to clipboard!');
+                  }}
+                >
+                  Copy
+                </button>
+              </div>
+              <div className={styles.emailBox}>
+                <code>sanjanav0610@gmail.com</code>
+                <button 
+                  className={styles.copyBtn}
+                  onClick={() => {
+                    navigator.clipboard.writeText('sanjanav0610@gmail.com');
                     alert('Email copied to clipboard!');
                   }}
                 >
@@ -170,9 +182,15 @@ const ContactScreen = () => {
         <Card className={styles.infoCard}>
           <h3 className={styles.infoTitle}>Contact Information</h3>
           <div className={styles.infoItem}>
-            <span className={styles.infoLabel}>📧 Email:</span>
+            <span className={styles.infoLabel}>📧 Email 1:</span>
             <a href="mailto:samrajnee05@gmail.com" className={styles.infoLink}>
               samrajnee05@gmail.com
+            </a>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.infoLabel}>📧 Email 2:</span>
+            <a href="mailto:sanjanav0610@gmail.com" className={styles.infoLink}>
+              sanjanav0610@gmail.com
             </a>
           </div>
           <div className={styles.infoItem}>

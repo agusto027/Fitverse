@@ -106,6 +106,19 @@
   border-color: var(--color-blue);
 }
 
+.activeBalance {
+  border-color: #10b981;
+}
+
+.selectedBadgeGreen {
+  background-color: #10b981;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
 .statsSection {
   margin-top: 8px;
 }
@@ -303,4 +316,53 @@
 .totalsCard p {
   font-size: 14px;
   font-weight: 500;
+}
+
+.profileInfoCard {
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.profileItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.profileItem .label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.profileItem .value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.profileAdvice {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .profileGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

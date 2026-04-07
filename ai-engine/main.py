@@ -162,6 +162,106 @@ async def pose_websocket_endpoint(websocket: WebSocket):
                         msg = "Hips are sagging! Raise them."
                     else:
                         msg = "Plank active."
+
+                # --- LUNGE LOGIC ---
+                elif exercise == "lunge":
+                    # Track knee angle on front leg: Hip (23), Knee (25), Ankle (27)
+                    hip = [landmarks[23]['x'], landmarks[23]['y']]
+                    knee = [landmarks[25]['x'], landmarks[25]['y']]
+                    ankle = [landmarks[27]['x'], landmarks[27]['y']]
+                    
+                    angle = calculate_angle(hip, knee, ankle)
+                    
+                    if angle < 110:
+                        stage = "down"
+                        msg = "Good depth! Push back UP!"
+                    if angle > 160 and stage == "down":
+                        stage = "up"
+                        rep_count += 1
+                        msg = "Lunge completed! Great form."
+                    elif angle > 160:
+                        stage = "up"
+                        msg = "Standing. Ready for next lunge."
+
+                # --- JUMPING JACKS LOGIC ---
+                elif exercise == "jumpingjacks":
+                    # Track arm position: Shoulder (11), Hip (23)
+                    shoulder_y = landmarks[11]['y']
+                    hip_y = landmarks[23]['y']
+                    
+                    # Calculate if arms are up or down based on shoulder vs hip position
+                    arm_up = shoulder_y < hip_y - 0.15
+                    
+                    if arm_up:
+                        if stage == "down":
+                            rep_count += 1
+                            msg = "Jumping jack! Great rhythm."
+                        stage = "up"
+                    else:
+                        stage = "down"
+                        msg = "Arms down, ready to jump!"
+
+                # --- BURPEE LOGIC ---
+                elif exercise == "burpee":
+                    # Track position using hand and hip vertical position
+                    hand_y = landmarks[15]['y']  # Right wrist
+                    hip_y = landmarks[23]['y']
+                    head_y = landmarks[0]['y']  # Nose
+                    
+                    # Burpee stages: standing -> plank -> standing
+                    if stage == "up" and hand_y < hip_y - 0.3:
+                        stage = "plank"
+                        msg = "Hold plank position!"
+                    elif stage == "plank" and head_y < hip_y - 0.3:
+                        stage = "jumping"
+                        msg = "Jump up!"
+                    elif stage == "jumping" and head_y > hip_y - 0.1:
+                        stage = "up"
+                        rep_count += 1
+                        msg = "Burpee completed! Excellent."
+
+                # --- MOUNTAIN CLIMBER LOGIC ---
+                elif exercise == "mountainclimber":
+                    # Track plank position and hip movement
+                    shoulder = [landmarks[11]['x'], landmarks[11]['y']]
+                    hip = [landmarks[23]['x'], landmarks[23]['y']]
+                    ankle = [landmarks[27]['x'], landmarks[27]['y']]
+                    
+                    alignment_angle = calculate_angle(shoulder, hip, ankle)
+                    
+                    # Track hip height changes
+                    hip_y = landmarks[23]['y']
+                    
+                    if 160 <= alignment_angle <= 180:
+                        # Good plank form, count hip movements as reps
+                        if hip_y < 0.35:  # Hips high - leg contracted
+                            if stage == "down":
+                                rep_count += 1
+                                msg = "Mountain climber rep! Keep going!"
+                            stage = "up"
+                        else:  # Hips lower - leg extended
+                            stage = "down"
+                            msg = "Extend legs!"
+                    else:
+                        msg = "Keep hips level and body straight!"
+
+                # --- MARCHING IN PLACE LOGIC ---
+                elif exercise == "marching":
+                    # Track knee height: Hip (23), Knee (25)
+                    hip_y = landmarks[23]['y']
+                    knee_y = landmarks[25]['y']
+                    
+                    # Knee should come up higher than hip
+                    knee_up = knee_y < hip_y - 0.15
+                    
+                    if knee_up:
+                        if stage == "down":
+                            rep_count += 1
+                            msg = "Good march! Keep it up!"
+                        stage = "up"
+                    else:
+                        stage = "down"
+                        msg = "Lift your knee higher!"
                 
                 await websocket.send_json({
                     "rep_count": rep_count,
