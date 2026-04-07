@@ -2,7 +2,11 @@
 
 A comprehensive fitness application with AI-powered features for personalized workout tracking, exercise form detection, meal planning, and a 24/7 virtual fitness coach.
 
-> **📖 For Detailed Technical Documentation:** See [README_DETAILED.md](README_DETAILED.md) for comprehensive tech stack, architecture, algorithms, and functions explanation.
+## 📖 Choose Your Documentation Level
+
+- **[README_SIMPLE.md](README_SIMPLE.md)** 👥 - For everyone (no coding needed!)
+- **[README.md](README.md)** (this file) 📱 - Quick start and features
+- **[README_DETAILED.md](README_DETAILED.md)** 💻 - For developers and architects
 
 ---
 

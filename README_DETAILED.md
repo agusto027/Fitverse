@@ -1,6 +1,10 @@
 # FitVerse - AI-Powered Fitness Platform
 ## Comprehensive Technical Documentation
 
+> ### 👉 **For Non-Coders:** If you're not a programmer, please read [README_SIMPLE.md](README_SIMPLE.md) instead - it's written for everyone!
+> 
+> **This document is for developers and technical people only.**
+
 A full-stack AI-powered fitness application featuring real-time exercise detection, personalized meal planning, intelligent workout recommendations, and a 24/7 virtual fitness coach.
 
 ---
