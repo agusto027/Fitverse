@@ -262,6 +262,201 @@ async def pose_websocket_endpoint(websocket: WebSocket):
                     else:
                         stage = "down"
                         msg = "Lift your knee higher!"
+
+                # --- BICEP CURL LOGIC ---
+                elif exercise == "bicepurl":
+                    # Track right arm: Shoulder (12), Elbow (14), Wrist (16)
+                    shoulder = [landmarks[12]['x'], landmarks[12]['y']]
+                    elbow = [landmarks[14]['x'], landmarks[14]['y']]
+                    wrist = [landmarks[16]['x'], landmarks[16]['y']]
+                    
+                    angle = calculate_angle(shoulder, elbow, wrist)
+                    
+                    if angle < 90:
+                        stage = "up"
+                        msg = "Good curl! Lower down!"
+                    if angle > 160 and stage == "up":
+                        stage = "down"
+                        rep_count += 1
+                        msg = "Rep completed! Excellent form."
+                    elif angle > 160:
+                        stage = "down"
+                        msg = "Arm extended. Ready for next rep."
+
+                # --- TRICEPS DIPS LOGIC ---
+                elif exercise == "tricepsdips":
+                    # Track elbow angle: Shoulder (12), Elbow (14), Hip (24)
+                    shoulder = [landmarks[12]['x'], landmarks[12]['y']]
+                    elbow = [landmarks[14]['x'], landmarks[14]['y']]
+                    hip = [landmarks[24]['x'], landmarks[24]['y']]
+                    
+                    angle = calculate_angle(shoulder, elbow, hip)
+                    
+                    if angle < 90:
+                        stage = "down"
+                        msg = "Good depth! Press back up!"
+                    if angle > 140 and stage == "down":
+                        stage = "up"
+                        rep_count += 1
+                        msg = "Dip completed! Great work."
+                    elif angle > 140:
+                        stage = "up"
+                        msg = "Top position. Ready for next dip."
+
+                # --- LATERAL RAISE LOGIC ---
+                elif exercise == "lateralraise":
+                    # Track arm height: Shoulder (12), Elbow (14), Hip (24)
+                    shoulder_y = landmarks[12]['y']
+                    elbow_y = landmarks[14]['y']
+                    hip_y = landmarks[24]['y']
+                    
+                    # Arms should be raised to shoulder height or higher
+                    arms_raised = elbow_y < shoulder_y - 0.05
+                    
+                    if arms_raised:
+                        if stage == "down":
+                            rep_count += 1
+                            msg = "Excellent raise! Lower down smoothly!"
+                        stage = "up"
+                    else:
+                        stage = "down"
+                        msg = "Raise arms to shoulder height!"
+
+                # --- OVERHEAD PRESS LOGIC ---
+                elif exercise == "overheadpress":
+                    # Track arm extension: Shoulder (12), Elbow (14), Wrist (16)
+                    shoulder = [landmarks[12]['x'], landmarks[12]['y']]
+                    elbow = [landmarks[14]['x'], landmarks[14]['y']]
+                    wrist = [landmarks[16]['x'], landmarks[16]['y']]
+                    
+                    angle = calculate_angle(shoulder, elbow, wrist)
+                    
+                    if angle > 160:
+                        stage = "up"
+                        msg = "Full extension! Lower down!"
+                    if angle < 90 and stage == "up":
+                        stage = "down"
+                        rep_count += 1
+                        msg = "Press completed! Excellent form."
+                    elif angle < 90:
+                        stage = "down"
+                        msg = "At chest level. Ready for next press."
+
+                # --- SHOULDER SHRUG LOGIC ---
+                elif exercise == "shouldershrug":
+                    # Track shoulder height changes relative to neck
+                    shoulder_y = landmarks[12]['y']
+                    neck_y = landmarks[0]['y']  # Nose as reference
+                    
+                    # Shrug is a shoulder elevation
+                    shrug = shoulder_y < neck_y - 0.1
+                    
+                    if shrug:
+                        if stage == "down":
+                            rep_count += 1
+                            msg = "Great shrug! Lower shoulders!"
+                        stage = "up"
+                    else:
+                        stage = "down"
+                        msg = "Shrug shoulders up!"
+
+                # --- CALF RAISES (STANDING) LOGIC ---
+                elif exercise == "calfraisestanding":
+                    # Track heel height: Ankle (28), Knee (26), Hip (24)
+                    ankle_y = landmarks[28]['y']
+                    knee_y = landmarks[26]['y']
+                    
+                    # Heel up = standing on toes
+                    heel_up = ankle_y < knee_y - 0.15
+                    
+                    if heel_up:
+                        if stage == "down":
+                            rep_count += 1
+                            msg = "Good raise! Lower your heels!"
+                        stage = "up"
+                    else:
+                        stage = "down"
+                        msg = "Raise up on your toes!"
+
+                # --- BENT OVER ROW LOGIC ---
+                elif exercise == "bentoverrow":
+                    # Track elbow angle: Shoulder (12), Elbow (14), Hip (24)
+                    shoulder = [landmarks[12]['x'], landmarks[12]['y']]
+                    elbow = [landmarks[14]['x'], landmarks[14]['y']]
+                    hip = [landmarks[24]['x'], landmarks[24]['y']]
+                    
+                    angle = calculate_angle(shoulder, elbow, hip)
+                    
+                    if angle < 80:
+                        stage = "up"
+                        msg = "Elbows pulled back! Lower and repeat!"
+                    if angle > 140 and stage == "up":
+                        stage = "down"
+                        rep_count += 1
+                        msg = "Row completed! Excellent contraction."
+                    elif angle > 140:
+                        stage = "down"
+                        msg = "Arms extended. Ready for next row."
+
+                # --- TRICEP EXTENSION LOGIC ---
+                elif exercise == "tricepextension":
+                    # Track overhead arm angle: Shoulder (12), Elbow (14), Wrist (16)
+                    shoulder = [landmarks[12]['x'], landmarks[12]['y']]
+                    elbow = [landmarks[14]['x'], landmarks[14]['y']]
+                    wrist = [landmarks[16]['x'], landmarks[16]['y']]
+                    
+                    angle = calculate_angle(shoulder, elbow, wrist)
+                    
+                    if angle > 150:
+                        stage = "up"
+                        msg = "Full extension! Bend elbows!"
+                    if angle < 80 and stage == "up":
+                        stage = "down"
+                        rep_count += 1
+                        msg = "Extension completed! Perfect form."
+                    elif angle < 80:
+                        stage = "down"
+                        msg = "Elbows bent. Ready for next rep."
+
+                # --- PULL-UP ALTERNATIVE LOGIC ---
+                elif exercise == "pullupsapproach":
+                    # Track arm angle: Shoulder (12), Elbow (14), Wrist (16)
+                    shoulder = [landmarks[12]['x'], landmarks[12]['y']]
+                    elbow = [landmarks[14]['x'], landmarks[14]['y']]
+                    wrist = [landmarks[16]['x'], landmarks[16]['y']]
+                    
+                    angle = calculate_angle(shoulder, elbow, wrist)
+                    
+                    if angle < 80:
+                        stage = "up"
+                        msg = "Pull complete! Lower down!"
+                    if angle > 160 and stage == "up":
+                        stage = "down"
+                        rep_count += 1
+                        msg = "Pull-up alternative completed! Great work."
+                    elif angle > 160:
+                        stage = "down"
+                        msg = "Arms extended. Ready for next pull."
+
+                # --- SHOULDER PRESS LOGIC ---
+                elif exercise == "shoulderpress":
+                    # Track arm extension: Both Shoulders (11,12), Elbows (13,14)
+                    shoulder_l = [landmarks[11]['x'], landmarks[11]['y']]
+                    elbow_l = [landmarks[13]['x'], landmarks[13]['y']]
+                    wrist_l = [landmarks[15]['x'], landmarks[15]['y']]
+                    
+                    angle = calculate_angle(shoulder_l, elbow_l, wrist_l)
+                    
+                    if angle > 160:
+                        stage = "up"
+                        msg = "Full shoulder press! Lower down!"
+                    if angle < 90 and stage == "up":
+                        stage = "down"
+                        rep_count += 1
+                        msg = "Shoulder press completed! Excellent form."
+                    elif angle < 90:
+                        stage = "down"
+                        msg = "At shoulder level. Ready for next press."
                 
                 await websocket.send_json({
                     "rep_count": rep_count,

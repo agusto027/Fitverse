@@ -24,14 +24,23 @@ const ExerciseDetectionScreen = () => {
     beginner: [
       { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Beginner' },
       { id: 'plank', name: 'Plank', desc: 'Core stability exercise', difficulty: 'Beginner' },
-      { id: 'marching', name: 'Marching in Place', desc: 'Cardio warm-up', difficulty: 'Beginner' }
+      { id: 'marching', name: 'Marching in Place', desc: 'Cardio warm-up', difficulty: 'Beginner' },
+      { id: 'shouldershrug', name: 'Shoulder Shrugs', desc: 'Shoulder and trap work', difficulty: 'Beginner' },
+      { id: 'calfraisestanding', name: 'Calf Raises (Standing)', desc: 'Lower leg strength', difficulty: 'Beginner' }
     ],
     intermediate: [
       { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Beginner' },
       { id: 'pushup', name: 'Push-up', desc: 'Upper body and core', difficulty: 'Intermediate' },
       { id: 'plank', name: 'Plank', desc: 'Core stability exercise', difficulty: 'Beginner' },
       { id: 'lunge', name: 'Lunge', desc: 'Lower body and balance', difficulty: 'Intermediate' },
-      { id: 'jumpingjacks', name: 'Jumping Jacks', desc: 'Full body cardio', difficulty: 'Intermediate' }
+      { id: 'jumpingjacks', name: 'Jumping Jacks', desc: 'Full body cardio', difficulty: 'Intermediate' },
+      { id: 'bicepurl', name: 'Bicep Curl', desc: 'Upper arm strength', difficulty: 'Intermediate' },
+      { id: 'tricepsdips', name: 'Triceps Dips', desc: 'Arm and chest strength', difficulty: 'Intermediate' },
+      { id: 'lateralraise', name: 'Lateral Raise', desc: 'Shoulder strength', difficulty: 'Intermediate' },
+      { id: 'overheadpress', name: 'Overhead Press', desc: 'Shoulder and core strength', difficulty: 'Intermediate' },
+      { id: 'shouldershrug', name: 'Shoulder Shrugs', desc: 'Shoulder and trap work', difficulty: 'Beginner' },
+      { id: 'calfraisestanding', name: 'Calf Raises (Standing)', desc: 'Lower leg strength', difficulty: 'Beginner' },
+      { id: 'bentoverrow', name: 'Bent Over Row', desc: 'Back and bicep strength', difficulty: 'Intermediate' }
     ],
     advanced: [
       { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Beginner' },
@@ -40,7 +49,15 @@ const ExerciseDetectionScreen = () => {
       { id: 'lunge', name: 'Lunge', desc: 'Lower body and balance', difficulty: 'Intermediate' },
       { id: 'jumpingjacks', name: 'Jumping Jacks', desc: 'Full body cardio', difficulty: 'Intermediate' },
       { id: 'burpee', name: 'Burpee', desc: 'Full body HIIT', difficulty: 'Advanced' },
-      { id: 'mountainclimber', name: 'Mountain Climber', desc: 'Core and cardio', difficulty: 'Advanced' }
+      { id: 'mountainclimber', name: 'Mountain Climber', desc: 'Core and cardio', difficulty: 'Advanced' },
+      { id: 'bicepurl', name: 'Bicep Curl', desc: 'Upper arm strength', difficulty: 'Intermediate' },
+      { id: 'tricepsdips', name: 'Triceps Dips', desc: 'Arm and chest strength', difficulty: 'Intermediate' },
+      { id: 'lateralraise', name: 'Lateral Raise', desc: 'Shoulder strength', difficulty: 'Intermediate' },
+      { id: 'overheadpress', name: 'Overhead Press', desc: 'Shoulder and core strength', difficulty: 'Intermediate' },
+      { id: 'bentoverrow', name: 'Bent Over Row', desc: 'Back and bicep strength', difficulty: 'Intermediate' },
+      { id: 'tricepextension', name: 'Tricep Extension', desc: 'Isolation tricep work', difficulty: 'Advanced' },
+      { id: 'pullupsapproach', name: 'Pull-up Alternative', desc: 'Upper back strength', difficulty: 'Advanced' },
+      { id: 'shoulderpress', name: 'Shoulder Press', desc: 'Full shoulder work', difficulty: 'Advanced' }
     ]
   };
 
