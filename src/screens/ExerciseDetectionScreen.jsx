@@ -10,6 +10,7 @@ const ExerciseDetectionScreen = () => {
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [repCount, setRepCount] = useState(0);
   const [feedbackMsg, setFeedbackMsg] = useState('Tracking...');
+  const [postureFeedback, setPostureFeedback] = useState('');
   const [socketConnected, setSocketConnected] = useState(false);
   const [profile, setProfile] = useState(null);
   const [recommendedExercises, setRecommendedExercises] = useState([]);
@@ -20,44 +21,34 @@ const ExerciseDetectionScreen = () => {
   const cameraRef = useRef(null);
   const poseRef = useRef(null);
 
+  const supportedExercises = new Set([
+    'squat',
+    'chair_squats',
+    'bicep_curl',
+    'shoulder_press'
+  ]);
+
+  const getBackendExerciseId = (exerciseId) => exerciseId;
+  const isExerciseSupported = (exerciseId) => supportedExercises.has(getBackendExerciseId(exerciseId));
+
   const allExercises = {
     beginner: [
       { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Beginner' },
-      { id: 'plank', name: 'Plank', desc: 'Core stability exercise', difficulty: 'Beginner' },
-      { id: 'marching', name: 'Marching in Place', desc: 'Cardio warm-up', difficulty: 'Beginner' },
-      { id: 'shouldershrug', name: 'Shoulder Shrugs', desc: 'Shoulder and trap work', difficulty: 'Beginner' },
-      { id: 'calfraisestanding', name: 'Calf Raises (Standing)', desc: 'Lower leg strength', difficulty: 'Beginner' }
+      { id: 'chair_squats', name: 'Chair Squats', desc: 'Sit and stand (chair-friendly)', difficulty: 'Beginner' },
+      { id: 'bicep_curl', name: 'Bicep Curl', desc: 'Upper arm strength', difficulty: 'Beginner' },
+      { id: 'shoulder_press', name: 'Seated Shoulder Press', desc: 'Shoulder strength (chair-friendly)', difficulty: 'Beginner' }
     ],
     intermediate: [
-      { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Beginner' },
-      { id: 'pushup', name: 'Push-up', desc: 'Upper body and core', difficulty: 'Intermediate' },
-      { id: 'plank', name: 'Plank', desc: 'Core stability exercise', difficulty: 'Beginner' },
-      { id: 'lunge', name: 'Lunge', desc: 'Lower body and balance', difficulty: 'Intermediate' },
-      { id: 'jumpingjacks', name: 'Jumping Jacks', desc: 'Full body cardio', difficulty: 'Intermediate' },
-      { id: 'bicepurl', name: 'Bicep Curl', desc: 'Upper arm strength', difficulty: 'Intermediate' },
-      { id: 'tricepsdips', name: 'Triceps Dips', desc: 'Arm and chest strength', difficulty: 'Intermediate' },
-      { id: 'lateralraise', name: 'Lateral Raise', desc: 'Shoulder strength', difficulty: 'Intermediate' },
-      { id: 'overheadpress', name: 'Overhead Press', desc: 'Shoulder and core strength', difficulty: 'Intermediate' },
-      { id: 'shouldershrug', name: 'Shoulder Shrugs', desc: 'Shoulder and trap work', difficulty: 'Beginner' },
-      { id: 'calfraisestanding', name: 'Calf Raises (Standing)', desc: 'Lower leg strength', difficulty: 'Beginner' },
-      { id: 'bentoverrow', name: 'Bent Over Row', desc: 'Back and bicep strength', difficulty: 'Intermediate' }
+      { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Intermediate' },
+      { id: 'chair_squats', name: 'Chair Squats', desc: 'Sit and stand (chair-friendly)', difficulty: 'Intermediate' },
+      { id: 'bicep_curl', name: 'Bicep Curl', desc: 'Upper arm strength', difficulty: 'Intermediate' },
+      { id: 'shoulder_press', name: 'Seated Shoulder Press', desc: 'Shoulder strength (chair-friendly)', difficulty: 'Intermediate' }
     ],
     advanced: [
-      { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Beginner' },
-      { id: 'pushup', name: 'Push-up', desc: 'Upper body and core', difficulty: 'Intermediate' },
-      { id: 'plank', name: 'Plank', desc: 'Core stability', difficulty: 'Beginner' },
-      { id: 'lunge', name: 'Lunge', desc: 'Lower body and balance', difficulty: 'Intermediate' },
-      { id: 'jumpingjacks', name: 'Jumping Jacks', desc: 'Full body cardio', difficulty: 'Intermediate' },
-      { id: 'burpee', name: 'Burpee', desc: 'Full body HIIT', difficulty: 'Advanced' },
-      { id: 'mountainclimber', name: 'Mountain Climber', desc: 'Core and cardio', difficulty: 'Advanced' },
-      { id: 'bicepurl', name: 'Bicep Curl', desc: 'Upper arm strength', difficulty: 'Intermediate' },
-      { id: 'tricepsdips', name: 'Triceps Dips', desc: 'Arm and chest strength', difficulty: 'Intermediate' },
-      { id: 'lateralraise', name: 'Lateral Raise', desc: 'Shoulder strength', difficulty: 'Intermediate' },
-      { id: 'overheadpress', name: 'Overhead Press', desc: 'Shoulder and core strength', difficulty: 'Intermediate' },
-      { id: 'bentoverrow', name: 'Bent Over Row', desc: 'Back and bicep strength', difficulty: 'Intermediate' },
-      { id: 'tricepextension', name: 'Tricep Extension', desc: 'Isolation tricep work', difficulty: 'Advanced' },
-      { id: 'pullupsapproach', name: 'Pull-up Alternative', desc: 'Upper back strength', difficulty: 'Advanced' },
-      { id: 'shoulderpress', name: 'Shoulder Press', desc: 'Full shoulder work', difficulty: 'Advanced' }
+      { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Advanced' },
+      { id: 'chair_squats', name: 'Chair Squats', desc: 'Sit and stand (chair-friendly)', difficulty: 'Advanced' },
+      { id: 'bicep_curl', name: 'Bicep Curl', desc: 'Upper arm strength', difficulty: 'Advanced' },
+      { id: 'shoulder_press', name: 'Seated Shoulder Press', desc: 'Shoulder strength (chair-friendly)', difficulty: 'Advanced' }
     ]
   };
 
@@ -103,6 +94,9 @@ const ExerciseDetectionScreen = () => {
         if (data.message) {
           setFeedbackMsg(data.message);
         }
+        if (data.posture_feedback) {
+          setPostureFeedback(data.posture_feedback);
+        }
       } catch (e) {
         console.error("WS Parse Error", e);
       }
@@ -119,6 +113,12 @@ const ExerciseDetectionScreen = () => {
 
   useEffect(() => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      if (!isExerciseSupported(activeExercise)) {
+        setRepCount(0);
+        setFeedbackMsg('This exercise is not supported yet.');
+        return;
+      }
+
       wsRef.current.send(JSON.stringify({ command: 'reset' }));
       setRepCount(0);
       setFeedbackMsg('Exercise switched. Ready.');
@@ -180,9 +180,13 @@ const ExerciseDetectionScreen = () => {
 
         // Send payload to Python AI engine via WS
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            if (!isExerciseSupported(activeExercise)) {
+              return;
+            }
+
             const payload = {
               landmarks: results.poseLandmarks,
-              exercise: activeExercise
+              exercise: getBackendExerciseId(activeExercise)
             };
             wsRef.current.send(JSON.stringify(payload));
         }
@@ -251,6 +255,9 @@ const ExerciseDetectionScreen = () => {
               />
               <div style={{ position: 'absolute', top: '20px', left: '20px', background: 'rgba(0,0,0,0.7)', padding: '10px 20px', borderRadius: '12px' }}>
                  <p style={{ color: '#3b82f6', margin: 0, fontWeight: 'bold' }}>{feedbackMsg}</p>
+                 {postureFeedback && (
+                   <p style={{ color: '#10b981', margin: '8px 0 0 0', fontSize: '0.9em' }}>{postureFeedback}</p>
+                 )}
                  <div className={styles.repCounter} style={{ position: 'relative', bottom: '0', left: '0', marginTop: '10px' }}>
                    <span className={styles.repCount}>{repCount}</span>
                    <span className={styles.repLabel}>reps</span>
