@@ -23,30 +23,35 @@ const ExerciseDetectionScreen = () => {
 
   const supportedExercises = new Set([
     'squat',
-    'chair_squats',
+    'lunges',
     'bicep_curl',
     'shoulder_press'
   ]);
 
-  const getBackendExerciseId = (exerciseId) => exerciseId;
+  const getBackendExerciseId = (exerciseId) => {
+    if (exerciseId === 'chair_squats') {
+      return 'lunges';
+    }
+    return exerciseId;
+  };
   const isExerciseSupported = (exerciseId) => supportedExercises.has(getBackendExerciseId(exerciseId));
 
   const allExercises = {
     beginner: [
       { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Beginner' },
-      { id: 'chair_squats', name: 'Chair Squats', desc: 'Sit and stand (chair-friendly)', difficulty: 'Beginner' },
+      { id: 'lunges', name: 'Lunges', desc: 'Step and drive through the front leg', difficulty: 'Beginner' },
       { id: 'bicep_curl', name: 'Bicep Curl', desc: 'Upper arm strength', difficulty: 'Beginner' },
       { id: 'shoulder_press', name: 'Seated Shoulder Press', desc: 'Shoulder strength (chair-friendly)', difficulty: 'Beginner' }
     ],
     intermediate: [
       { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Intermediate' },
-      { id: 'chair_squats', name: 'Chair Squats', desc: 'Sit and stand (chair-friendly)', difficulty: 'Intermediate' },
+      { id: 'lunges', name: 'Lunges', desc: 'Step and drive through the front leg', difficulty: 'Intermediate' },
       { id: 'bicep_curl', name: 'Bicep Curl', desc: 'Upper arm strength', difficulty: 'Intermediate' },
       { id: 'shoulder_press', name: 'Seated Shoulder Press', desc: 'Shoulder strength (chair-friendly)', difficulty: 'Intermediate' }
     ],
     advanced: [
       { id: 'squat', name: 'Squat', desc: 'Lower body strength', difficulty: 'Advanced' },
-      { id: 'chair_squats', name: 'Chair Squats', desc: 'Sit and stand (chair-friendly)', difficulty: 'Advanced' },
+      { id: 'lunges', name: 'Lunges', desc: 'Step and drive through the front leg', difficulty: 'Advanced' },
       { id: 'bicep_curl', name: 'Bicep Curl', desc: 'Upper arm strength', difficulty: 'Advanced' },
       { id: 'shoulder_press', name: 'Seated Shoulder Press', desc: 'Shoulder strength (chair-friendly)', difficulty: 'Advanced' }
     ]

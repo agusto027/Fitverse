@@ -62,6 +62,7 @@ def get_coach():
 EXERCISE_ALIASES = {
     "bicepurl": "bicep_curl",
     "bicep_curl": "bicep_curl",
+    "chair_squats": "lunges",
     "tricepsdips": "tricep_dips",
     "tricep_dips": "tricep_dips",
     "lateralraise": "lateral_raise",
@@ -71,6 +72,8 @@ EXERCISE_ALIASES = {
     "shoulder_press": "shoulder_press",
     "calfraisestanding": "calf_raises",
     "calf_raises": "calf_raises",
+    "lunge": "lunges",
+    "lunges": "lunges",
     "pullupsapproach": "pull_ups",
     "pull_ups": "pull_ups",
 }
@@ -78,7 +81,7 @@ EXERCISE_ALIASES = {
 SUPPORTED_EXERCISES = {
     "squat",
     "pushup",
-    "chair_squats",
+    "lunges",
     "bicep_curl",
     "tricep_dips",
     "lateral_raise",
@@ -171,7 +174,7 @@ def analyze_posture(landmarks, exercise):
         posture_cues.append("⚠️ Level hips")
     
     # Exercise-specific form checks
-    if exercise in ["squat", "chair_squats"]:
+    if exercise in ["squat", "lunges"]:
         # Check knee alignment: knees should track over ankles (not caving in)
         left_knee_x = left_knee[0]
         left_ankle_x = left_ankle[0]
@@ -262,7 +265,7 @@ async def pose_websocket_endpoint(websocket: WebSocket):
     DOWN_THRESHOLDS = {
         'squat': 120,
         'pushup': 100,
-        'chair_squats': 100,  # Sitting in chair
+        'lunges': 105,
         'bicep_curl': 80,
         'tricep_dips': 100,
         'lateral_raise': 30,
@@ -278,10 +281,10 @@ async def pose_websocket_endpoint(websocket: WebSocket):
     
     # Hysteresis thresholds: prevent flickering between states
     # Enter DOWN if below ENTER, exit DOWN only if above EXIT (hysteresis gap)
-    DOWN_ENTER_THRESHOLDS = {'squat': 110, 'chair_squats': 95, 'pushup': 95, 'bicep_curl': 72, 'tricep_dips': 95, 'shoulder_press': 90}
-    DOWN_EXIT_THRESHOLDS = {'squat': 130, 'chair_squats': 115, 'pushup': 110, 'bicep_curl': 85, 'tricep_dips': 110, 'shoulder_press': 105}
-    UP_ENTER_THRESHOLDS = {'squat': 150, 'chair_squats': 135, 'pushup': 145, 'bicep_curl': 150, 'tricep_dips': 145, 'shoulder_press': 160}
-    UP_EXIT_THRESHOLDS = {'squat': 135, 'chair_squats': 120, 'pushup': 130, 'bicep_curl': 135, 'tricep_dips': 130, 'shoulder_press': 145}
+    DOWN_ENTER_THRESHOLDS = {'squat': 110, 'lunges': 105, 'pushup': 95, 'bicep_curl': 72, 'tricep_dips': 95, 'shoulder_press': 90}
+    DOWN_EXIT_THRESHOLDS = {'squat': 130, 'lunges': 145, 'pushup': 110, 'bicep_curl': 85, 'tricep_dips': 110, 'shoulder_press': 105}
+    UP_ENTER_THRESHOLDS = {'squat': 150, 'lunges': 150, 'pushup': 145, 'bicep_curl': 150, 'tricep_dips': 145, 'shoulder_press': 160}
+    UP_EXIT_THRESHOLDS = {'squat': 135, 'lunges': 135, 'pushup': 130, 'bicep_curl': 135, 'tricep_dips': 130, 'shoulder_press': 145}
     
     try:
         while True:
@@ -401,57 +404,52 @@ async def pose_websocket_endpoint(websocket: WebSocket):
                         msg = f"⬆️ Up {angle:.0f}°"
                         status = "idle" if angle > 140 else "active"
                 
-                # --- CHAIR SQUATS (chair-friendly alternative) ---
-                elif exercise == "chair_squats":
+                # --- LUNGES ---
+                elif exercise == "lunges":
                     left_hip = [landmarks[23]['x'], landmarks[23]['y']]
-                    right_hip = [landmarks[24]['x'], landmarks[24]['y']]
                     left_knee = [landmarks[25]['x'], landmarks[25]['y']]
-                    right_knee = [landmarks[26]['x'], landmarks[26]['y']]
                     left_ankle = [landmarks[27]['x'], landmarks[27]['y']]
+                    right_hip = [landmarks[24]['x'], landmarks[24]['y']]
+                    right_knee = [landmarks[26]['x'], landmarks[26]['y']]
                     right_ankle = [landmarks[28]['x'], landmarks[28]['y']]
-                    left_angle = calculate_angle(left_hip, left_knee, left_ankle)
-                    right_angle = calculate_angle(right_hip, right_knee, right_ankle)
-                    angle = (left_angle + right_angle) / 2
 
-                    chair_enter_threshold = 110
-                    chair_exit_threshold = 150
-                    chair_required_streak = 3
-                    
-                    # Simple hysteresis-based state machine (less deep than regular squat)
+                    left_leg_angle = calculate_angle(left_hip, left_knee, left_ankle)
+                    right_leg_angle = calculate_angle(right_hip, right_knee, right_ankle)
+                    angle = min(left_leg_angle, right_leg_angle)
+                    working_leg = "left" if left_leg_angle <= right_leg_angle else "right"
+
                     if not in_down_pos:
-                        # Trying to enter down position (sitting in chair)
-                        if angle < chair_enter_threshold:
+                        if angle < DOWN_ENTER_THRESHOLDS.get('lunges', 105):
                             down_streak += 1
                             up_streak = 0
                         else:
-                            down_streak = max(0, down_streak - 1)  # Decay streak if condition not met
-                        
-                        if down_streak >= chair_required_streak:
+                            down_streak = max(0, down_streak - 1)
+
+                        if down_streak >= required_streak:
                             in_down_pos = True
                             down_streak = 0
                             ready_for_rep = True
-                            msg = f"⬇️ Sit {angle:.0f}°"
+                            msg = f"⬇️ Lunge {working_leg} {angle:.0f}°"
                             status = "active"
                         else:
                             msg = f"Prep... {angle:.0f}°"
                             status = "idle"
                     else:
-                        # Trying to exit down position (complete rep)
-                        if angle > chair_exit_threshold:
+                        if angle > DOWN_EXIT_THRESHOLDS.get('lunges', 145):
                             up_streak += 1
                             down_streak = 0
                         else:
-                            up_streak = max(0, up_streak - 1)  # Decay streak if condition not met
-                        
-                        if up_streak >= chair_required_streak and ready_for_rep:
-                            if try_count_rep("CHAIR SQUAT"):
+                            up_streak = max(0, up_streak - 1)
+
+                        if up_streak >= required_streak and ready_for_rep:
+                            if try_count_rep("LUNGES"):
                                 in_down_pos = False
                                 ready_for_rep = False
                                 up_streak = 0
                                 msg = f"✓ Rep {rep_count}! {angle:.0f}°"
                             status = "active"
                         else:
-                            msg = f"⬆️ Stand {angle:.0f}°"
+                            msg = f"⬆️ Return {angle:.0f}°"
                             status = "active"
                 
                 # --- BICEP CURL ---
