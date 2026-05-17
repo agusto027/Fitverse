@@ -250,6 +250,7 @@ async def pose_websocket_endpoint(websocket: WebSocket):
     warmup_frames = 0
     warmup_target = 10
     ready_for_rep = True
+    squat_angle_ema = None
 
     def try_count_rep(label):
         nonlocal rep_count, last_rep_time
@@ -301,6 +302,7 @@ async def pose_websocket_endpoint(websocket: WebSocket):
                     up_streak = 0
                     warmup_frames = 0
                     ready_for_rep = True
+                    squat_angle_ema = None
                     await websocket.send_json({"rep_count": rep_count, "status": "idle", "message": "Reset to 0"})
                     continue
                 
@@ -315,6 +317,7 @@ async def pose_websocket_endpoint(websocket: WebSocket):
                     up_streak = 0
                     warmup_frames = 0
                     ready_for_rep = True
+                    squat_angle_ema = None
                     last_exercise = exercise
                 
                 if not landmarks or len(landmarks) < 29:
@@ -343,15 +346,49 @@ async def pose_websocket_endpoint(websocket: WebSocket):
                 
                 # --- SQUAT ---
                 if exercise == "squat":
-                    hip = [landmarks[23]['x'], landmarks[23]['y']]
-                    knee = [landmarks[25]['x'], landmarks[25]['y']]
-                    ankle = [landmarks[27]['x'], landmarks[27]['y']]
-                    angle = calculate_angle(hip, knee, ankle)
+                    left_hip = [landmarks[23]['x'], landmarks[23]['y']]
+                    left_knee = [landmarks[25]['x'], landmarks[25]['y']]
+                    left_ankle = [landmarks[27]['x'], landmarks[27]['y']]
+                    right_hip = [landmarks[24]['x'], landmarks[24]['y']]
+                    right_knee = [landmarks[26]['x'], landmarks[26]['y']]
+                    right_ankle = [landmarks[28]['x'], landmarks[28]['y']]
+
+                    left_angle = calculate_angle(left_hip, left_knee, left_ankle)
+                    right_angle = calculate_angle(right_hip, right_knee, right_ankle)
+
+                    left_vis = min(
+                        landmarks[23].get('visibility', 1.0),
+                        landmarks[25].get('visibility', 1.0),
+                        landmarks[27].get('visibility', 1.0)
+                    )
+                    right_vis = min(
+                        landmarks[24].get('visibility', 1.0),
+                        landmarks[26].get('visibility', 1.0),
+                        landmarks[28].get('visibility', 1.0)
+                    )
+
+                    if left_vis < 0.4 and right_vis < 0.4:
+                        angle = (left_angle + right_angle) / 2
+                    elif left_vis < 0.4:
+                        angle = right_angle
+                    elif right_vis < 0.4:
+                        angle = left_angle
+                    else:
+                        angle = (left_angle + right_angle) / 2
+
+                    if squat_angle_ema is None:
+                        squat_angle_ema = angle
+                    else:
+                        squat_angle_ema = (0.6 * squat_angle_ema) + (0.4 * angle)
+                    angle = squat_angle_ema
+
+                    down_enter = DOWN_ENTER_THRESHOLDS.get('squat', 110)
+                    up_exit = UP_ENTER_THRESHOLDS.get('squat', 150)
                     
                     # Simple hysteresis-based state machine
                     if not in_down_pos:
                         # Trying to enter down position
-                        if angle < DOWN_ENTER_THRESHOLDS.get('squat', 110):
+                        if angle < down_enter:
                             down_streak += 1
                             up_streak = 0
                         else:
@@ -368,7 +405,7 @@ async def pose_websocket_endpoint(websocket: WebSocket):
                             status = "idle"
                     else:
                         # Trying to exit down position (complete rep)
-                        if angle > DOWN_EXIT_THRESHOLDS.get('squat', 130):
+                        if angle > up_exit:
                             up_streak += 1
                             down_streak = 0
                         else:
