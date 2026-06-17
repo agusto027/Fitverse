@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -26,11 +25,14 @@ app.get('/api/user/profile', authMiddleware, (req, res) => {
 // Database Start & Server Init
 const startServer = async () => {
   try {
-    const mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
+    const uri = process.env.DATABASE_URL || process.env.MONGODB_URL;
+
+    if (!uri) {
+      throw new Error('No MongoDB connection string found. Set DATABASE_URL or MONGODB_URL environment variable.');
+    }
 
     await mongoose.connect(uri);
-    console.log(`PWA Backend attached to in-memory MongoDB at: ${uri}`);
+    console.log('Connected to MongoDB');
 
     app.listen(PORT, () => {
       console.log(`Backend Auth API running on http://localhost:${PORT}`);
