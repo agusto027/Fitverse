@@ -320,8 +320,7 @@ Recommended platforms: Heroku, Railway, Google Cloud Run, or AWS
 ---
 
 For issues or inquiries:
-- Click "Contact Us" in the sidebar
-- Email: samrajnee05@gmail.com
+- Click "Contact Us" in the sidebar.
 - Check the AI Coach for fitness-related questions
 
 ---
