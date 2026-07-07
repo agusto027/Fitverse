@@ -74,9 +74,7 @@ A comprehensive fitness application with AI-powered features for personalized wo
 #### ⚙️ Settings
 - **Theme Settings**: Toggle between Dark, Light, or System theme
 - **Account Menu**: View profile and sign out
-- **Contact Us**: Email for inquiries:
-  - samrajnee05@gmail.com
-  - sanjanav0610@gmail.com
+- **Contact Us**
 
 ### Navigation
 - Use the sidebar to navigate between features
