@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # 1. MongoDB Database
+  mongodb:
+    image: mongo:latest
+    container_name: fitverse-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  # 2. Node.js Auth & Profile Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fitverse-backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongodb:27017/fitverse
+      - JWT_SECRET=super_secret_production_key_change_me
+    depends_on:
+      - mongodb
+
+  # 3. Python AI Engine (MediaPipe + Diet + Coach)
+  ai-engine:
+    build:
+      context: .
+      dockerfile: ai-engine/Dockerfile
+    container_name: fitverse-ai-engine
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=true
+
+  # 4. React SPA Frontend served via Nginx
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        - VITE_BACKEND_URL=http://localhost:3001
+        - VITE_AI_ENGINE_URL=http://localhost:8000
+    container_name: fitverse-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - ai-engine
+
+volumes:
+  mongo-data:

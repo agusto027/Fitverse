@@ -26,11 +26,15 @@ app.get('/api/user/profile', authMiddleware, (req, res) => {
 // Database Start & Server Init
 const startServer = async () => {
   try {
-    const mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-
-    await mongoose.connect(uri);
-    console.log(`PWA Backend attached to in-memory MongoDB at: ${uri}`);
+    if (process.env.MONGODB_URI) {
+      await mongoose.connect(process.env.MONGODB_URI);
+      console.log(`PWA Backend connected to persistent MongoDB at: ${process.env.MONGODB_URI.split('@').pop()}`);
+    } else {
+      const mongoServer = await MongoMemoryServer.create();
+      const uri = mongoServer.getUri();
+      await mongoose.connect(uri);
+      console.log(`PWA Backend attached to in-memory MongoDB at: ${uri}`);
+    }
 
     app.listen(PORT, () => {
       console.log(`Backend Auth API running on http://localhost:${PORT}`);

@@ -251,6 +251,12 @@ async def pose_websocket_endpoint(websocket: WebSocket):
     warmup_target = 10
     ready_for_rep = True
     squat_angle_ema = None
+    squat_baseline_hip_y = None
+    squat_baseline_samples = []
+    squat_baseline_target = 15
+    squat_min_hip_drop = 0.045
+    squat_min_hip_return = 0.02
+    squat_vis_threshold = 0.5
 
     def try_count_rep(label):
         nonlocal rep_count, last_rep_time
@@ -303,6 +309,8 @@ async def pose_websocket_endpoint(websocket: WebSocket):
                     warmup_frames = 0
                     ready_for_rep = True
                     squat_angle_ema = None
+                    squat_baseline_hip_y = None
+                    squat_baseline_samples = []
                     await websocket.send_json({"rep_count": rep_count, "status": "idle", "message": "Reset to 0"})
                     continue
                 
@@ -318,6 +326,8 @@ async def pose_websocket_endpoint(websocket: WebSocket):
                     warmup_frames = 0
                     ready_for_rep = True
                     squat_angle_ema = None
+                    squat_baseline_hip_y = None
+                    squat_baseline_samples = []
                     last_exercise = exercise
                 
                 if not landmarks or len(landmarks) < 29:
@@ -325,6 +335,24 @@ async def pose_websocket_endpoint(websocket: WebSocket):
 
                 if warmup_frames < warmup_target:
                     warmup_frames += 1
+                    if exercise == "squat" and len(landmarks) >= 29:
+                        left_vis = min(
+                            landmarks[23].get('visibility', 1.0),
+                            landmarks[25].get('visibility', 1.0),
+                            landmarks[27].get('visibility', 1.0)
+                        )
+                        right_vis = min(
+                            landmarks[24].get('visibility', 1.0),
+                            landmarks[26].get('visibility', 1.0),
+                            landmarks[28].get('visibility', 1.0)
+                        )
+                        if max(left_vis, right_vis) >= squat_vis_threshold:
+                            hip_y = (landmarks[23]['y'] + landmarks[24]['y']) / 2
+                            squat_baseline_samples.append(hip_y)
+                            if len(squat_baseline_samples) > squat_baseline_target:
+                                squat_baseline_samples.pop(0)
+                            if len(squat_baseline_samples) == squat_baseline_target:
+                                squat_baseline_hip_y = sum(squat_baseline_samples) / squat_baseline_target
                     await websocket.send_json({
                         "rep_count": rep_count,
                         "status": "idle",
@@ -384,43 +412,68 @@ async def pose_websocket_endpoint(websocket: WebSocket):
 
                     down_enter = DOWN_ENTER_THRESHOLDS.get('squat', 110)
                     up_exit = UP_ENTER_THRESHOLDS.get('squat', 150)
-                    
-                    # Simple hysteresis-based state machine
-                    if not in_down_pos:
-                        # Trying to enter down position
-                        if angle < down_enter:
-                            down_streak += 1
-                            up_streak = 0
-                        else:
-                            down_streak = max(0, down_streak - 1)  # Decay streak if condition not met
-                        
-                        if down_streak >= required_streak:
-                            in_down_pos = True
-                            down_streak = 0
-                            ready_for_rep = True
-                            msg = f"⬇️ Down {angle:.0f}°"
-                            status = "active"
-                        else:
-                            msg = f"Prep... {angle:.0f}°"
-                            status = "idle"
-                    else:
-                        # Trying to exit down position (complete rep)
+
+                    leg_vis_ok = max(left_vis, right_vis) >= squat_vis_threshold
+                    hip_y = (left_hip[1] + right_hip[1]) / 2
+
+                    if not leg_vis_ok:
+                        down_streak = 0
+                        up_streak = 0
+                        msg = "Step fully into frame"
+                        status = "idle"
+                    elif squat_baseline_hip_y is None:
                         if angle > up_exit:
-                            up_streak += 1
-                            down_streak = 0
-                        else:
-                            up_streak = max(0, up_streak - 1)  # Decay streak if condition not met
-                        
-                        if up_streak >= required_streak and ready_for_rep:
-                            if try_count_rep("SQUAT"):
-                                in_down_pos = False
-                                ready_for_rep = False
+                            squat_baseline_samples.append(hip_y)
+                            if len(squat_baseline_samples) > squat_baseline_target:
+                                squat_baseline_samples.pop(0)
+                            if len(squat_baseline_samples) == squat_baseline_target:
+                                squat_baseline_hip_y = sum(squat_baseline_samples) / squat_baseline_target
+                        msg = "Stand tall to calibrate"
+                        status = "idle"
+                    else:
+                        hip_drop = hip_y - squat_baseline_hip_y
+                        down_ready = hip_drop > squat_min_hip_drop and angle < down_enter
+                        up_ready = hip_drop < squat_min_hip_return and angle > up_exit
+
+                        if not in_down_pos and up_ready:
+                            squat_baseline_hip_y = (0.9 * squat_baseline_hip_y) + (0.1 * hip_y)
+                    
+                        # Simple hysteresis-based state machine with hip-drop gating
+                        if not in_down_pos:
+                            # Trying to enter down position
+                            if down_ready:
+                                down_streak += 1
                                 up_streak = 0
-                                msg = f"✓ Rep {rep_count}! {angle:.0f}°"
-                            status = "active"
+                            else:
+                                down_streak = max(0, down_streak - 1)  # Decay streak if condition not met
+                            
+                            if down_streak >= required_streak:
+                                in_down_pos = True
+                                down_streak = 0
+                                ready_for_rep = True
+                                msg = f"Down {angle:.0f}°"
+                                status = "active"
+                            else:
+                                msg = f"Prep... {angle:.0f}°"
+                                status = "idle"
                         else:
-                            msg = f"⬆️ Up {angle:.0f}°"
-                            status = "active"
+                            # Trying to exit down position (complete rep)
+                            if up_ready:
+                                up_streak += 1
+                                down_streak = 0
+                            else:
+                                up_streak = max(0, up_streak - 1)  # Decay streak if condition not met
+                            
+                            if up_streak >= required_streak and ready_for_rep:
+                                if try_count_rep("SQUAT"):
+                                    in_down_pos = False
+                                    ready_for_rep = False
+                                    up_streak = 0
+                                    msg = f"Rep {rep_count}! {angle:.0f}°"
+                                status = "active"
+                            else:
+                                msg = f"Up {angle:.0f}°"
+                                status = "active"
                 
                 # --- PUSHUP ---
                 elif exercise == "pushup":

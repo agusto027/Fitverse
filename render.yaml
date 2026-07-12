@@ -1,0 +1,26 @@
+services:
+  # Node.js Auth Backend
+  - type: web
+    name: fitverse-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false # Enter your MongoDB Atlas connection string during setup
+
+  # Python AI Engine (FastAPI + WebSocket)
+  - type: web
+    name: fitverse-ai-engine
+    runtime: python
+    rootDir: ai-engine
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "true"
